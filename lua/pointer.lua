@@ -1,10 +1,34 @@
 local nvim = vim.api -- luacheck: ignore
+
+local defaults = {
+  url_sep = "/",
+  sep = "#",
+  base_url = "",
+  projfn = function()
+    local path = nvim.nvim_call_function("getcwd", {})
+    local buff = {}
+    path:gsub("([^/]+)", function(p)
+      table.insert(buff, p)
+    end)
+    return buff
+  end
+}
+
+local default_mapping = {
+  url = {"yu", [[require("pointer").to_clip(require("pointer").url())]]},
+  rel = {"yrp", [[require("pointer").to_clip(require("pointer").path.rel())]]},
+  proj = {"ypp", [[require("pointer").to_clip(require("pointer").path.proj())]]},
+  root = {"yRp", [[require("pointer").to_clip(require("pointer").path.root())]]},
+}
+
 local pointer = {
   data = {},
   internal = {},
-  path = {}
+  path = {},
+  urls = {}
 }
 
+-- [[ Internal functions
 pointer.internal.merge = function(curr, new)
   for k, v in pairs(new) do
     curr[k] = v
@@ -30,62 +54,10 @@ pointer.internal.get_in = function(d, k)
   return p
 end
 
-local defaults = {
-  url_sep = "/",
-  sep = "#",
-  base_url = "",
-  projfn = function()
-    local path = nvim.nvim_call_function("getcwd", {})
-    local buff = {}
-    path:gsub("([^/]+)", function(p)
-      table.insert(buff, p)
-    end)
-    return buff
-  end
-}
-
-local default_mapping = {
-  url = {"yu", [[require("pointer").to_clip(require("pointer").url())]]},
-  rel = {"yrp", [[require("pointer").to_clip(require("pointer").path.rel())]]},
-  proj = {"ypp", [[require("pointer").to_clip(require("pointer").path.proj())]]},
-  root = {"yRp", [[require("pointer").to_clip(require("pointer").path.root())]]},
-}
-
-pointer.at = function()
-  return nvim.nvim_call_function("line", {"."})
-end
-
-pointer.curr_file = function()
-  return nvim.nvim_call_function("expand", {"%"})
-end
-
 pointer.internal.for_proj = function(project, o)
   return pointer.internal.get_in(pointer.data, {project[#project], o}) or
          pointer.internal.get_in(pointer.data, {project[#project-1], o}) or
          pointer.internal.get(pointer.data, o)
-end
-
-pointer.internal.urlroot = function(project)
-  return pointer.internal.for_proj(project, "base_url")
-end
-
-pointer.internal.sep = function(project)
-  return pointer.internal.for_proj(project, "sep")
-end
-
-pointer.internal.url_sep = function(project)
-  return pointer.internal.for_proj(project, "url_sep")
-end
-
-pointer.url = function(fn, ln)
-  local file = fn or pointer.curr_file()
-  local number = ln or pointer.at()
-  local project = pointer.data.projfn()
-  local urlroot = pointer.internal.urlroot(project)
-  local sep = pointer.internal.sep(project)
-  local url_sep = pointer.internal.url_sep(project)
-
-  return  urlroot .. project[#project] .. url_sep .. file .. sep .. number
 end
 
 pointer.internal.path = function(fn, ln)
@@ -95,6 +67,9 @@ pointer.internal.path = function(fn, ln)
    project = pointer.data.projfn()
 }
 end
+-- ]]
+
+-- [[ Local path
 
 pointer.path.root = function(fn, ln)
   local path = pointer.internal.path(fn, ln)
@@ -120,6 +95,8 @@ pointer.path.rel = function(fn, ln)
   return path.file .. " +" .. path.number
 end
 
+-- ]]
+
 pointer.config = function(config)
   pointer.data = pointer.internal.safe_merge(defaults, config)
 end
@@ -128,6 +105,64 @@ pointer.to_clip = function(val)
   nvim.nvim_call_function("setreg", {"+", val})
 end
 
+pointer.at = function()
+  return nvim.nvim_call_function("line", {"."})
+end
+
+pointer.curr_file = function()
+  return nvim.nvim_call_function("expand", {"%"})
+end
+
+pointer.urls.github = function(data)
+  local ln = nil
+  if type(data.line_number) == "table" then
+    ln = "#L" .. data.line_number[1] .. "-L" .. data.line_number[2]
+  else
+    ln = "#L" .. data.line_number
+  end
+
+  return "https://github.com/" .. data.ownername .. "/" .. data.projname .. "/blob/master/" .. data.fname .. ln
+end
+
+pointer.urls.gitlab = function(data)
+  local ln = nil
+  if type(data.line_number) == "table" then
+    ln = "#L" .. data.line_number[1] .. "-L" .. data.line_number[2]
+  else
+    ln = "#L" .. data.line_number
+  end
+
+  return "https://gitlab.com/" .. data.ownername .. "/" .. data.projname .. "/blob/master/" .. data.fname .. ln
+end
+
+pointer.urls.default = function(baseurl)
+  return function(data)
+    local ln = nil
+    if type(data.line_number) == "table" then
+      ln = "#" .. data.line_number[1] .. "-" .. data.line_number[2]
+    else
+      ln = "#" .. data.line_number
+    end
+
+    return baseurl .. data.projname .. "/" .. data.fname .. ln
+  end
+end
+
+pointer.url = function(fn, ln)
+  local file = fn or pointer.curr_file()
+  local number = ln or pointer.at()
+  local project = pointer.data.projfn()
+  local urlfn = pointer.internal.for_proj(project, "urlfn")
+
+  return urlfn{
+    project = project,
+    ownername = project[#project-1],
+    projname = project[#project],
+    fname = file,
+    line_number = number
+  }
+
+end
 
 pointer.map = function(mapping)
   local mappings = pointer.internal.safe_merge(default_mapping, mapping)
