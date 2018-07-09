@@ -36,7 +36,7 @@ local pointer = require("pointer")
 
 -- This configures github for all projects
 pointer.config{
-  urlfn = pointer.urls.github,
+  url = pointer.urls.github,
 }
 
 -- I'll explain mapping later. leave this to bind to default keybindings
