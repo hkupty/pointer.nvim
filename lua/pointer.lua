@@ -113,29 +113,24 @@ pointer.curr_file = function()
   return nvim.nvim_call_function("expand", {"%"})
 end
 
-pointer.urls.github = function(data)
-  local ln = nil
-  if type(data.line_number) == "table" then
-    ln = "#L" .. data.line_number[1] .. "-L" .. data.line_number[2]
-  else
-    ln = "#L" .. data.line_number
-  end
+pointer.urls.raw_git = function(url)
+  return function(data)
+    local ln = nil
+    if type(data.line_number) == "table" then
+      ln = "#L" .. data.line_number[1] .. "-L" .. data.line_number[2]
+    else
+      ln = "#L" .. data.line_number
+    end
 
-  return "https://github.com/" .. data.ownername .. "/" .. data.projname .. "/blob/master/" .. data.fname .. ln
+    return url .. data.ownername .. "/" .. data.projname .. "/blob/master/" .. data.fname .. ln
+  end
 end
 
-pointer.urls.gitlab = function(data)
-  local ln = nil
-  if type(data.line_number) == "table" then
-    ln = "#L" .. data.line_number[1] .. "-L" .. data.line_number[2]
-  else
-    ln = "#L" .. data.line_number
-  end
+pointer.urls.github = pointer.urls.raw_git("https://github.com/")
 
-  return "https://gitlab.com/" .. data.ownername .. "/" .. data.projname .. "/blob/master/" .. data.fname .. ln
-end
+pointer.urls.gitlab = pointer.urls.raw_git("https://gitlab.com/")
 
-pointer.urls.default = function(baseurl)
+pointer.urls.opengrok = function(baseurl)
   return function(data)
     local ln = nil
     if type(data.line_number) == "table" then

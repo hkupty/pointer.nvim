@@ -73,6 +73,16 @@ it will try to match first based on the project, than on the owner, then it'll u
 `/home/user/code/myteam/second/... -> opengrok`
 `/home/user/code/vigemus/pointer.nvim/... -> github`
 
+## Mappings
+
+If you use default mappings, it'll map:
+```
+yu -> As url
+ypp -> As a relative path from project owner (project/path/to/file.py)
+yrp -> As a relative path from your project (path/to/file.py)
+yRp -> As an absolute path (/home/user/code/owner/path/to/project.py)
+```
+
 ## TODO
 
 - [ ] Allow range selection
