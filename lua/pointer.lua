@@ -1,9 +1,6 @@
 local nvim = vim.api -- luacheck: ignore
 
 local defaults = {
-  url_sep = "/",
-  sep = "#",
-  base_url = "",
   projfn = function()
     local path = nvim.nvim_call_function("getcwd", {})
     local buff = {}

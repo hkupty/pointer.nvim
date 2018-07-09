@@ -57,7 +57,7 @@ local pointer = require("pointer")
 pointer.config{
   urlfn = pointer.urls.github,
   myteam = {
-    urlfn = pointer.urls.default("https://opengrok.myteam.com/xref/")
+    urlfn = pointer.urls.opengrok("https://opengrok.myteam.com/xref/")
   },
   mycustomproj = {
     urlfn = pointer.urls.gitlab
