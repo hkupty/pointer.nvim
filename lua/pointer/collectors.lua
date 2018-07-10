@@ -2,7 +2,7 @@ local nvim = vim.api -- luacheck: ignore
 local collectors = {}
 
 collectors.current_file = function()
-  return nvim.nvim_call_function("expand", {"%"})
+  return nvim.nvim_call_function("expand", {"%:~:."})
 end
 
 collectors.current_line = function()
