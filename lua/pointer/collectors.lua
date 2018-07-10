@@ -1,18 +1,28 @@
 local nvim = vim.api -- luacheck: ignore
-local collectors = {}
+local collectors = {
+  file = {},
+  line = {}
+}
 
-collectors.current_file = function()
+collectors.file.current = function()
   return nvim.nvim_call_function("expand", {"%:~:."})
 end
 
-collectors.current_line = function()
+collectors.line.current = function()
   return nvim.nvim_call_function("line", {"."})
 end
 
-collectors.lines_from_marks = function()
+collectors.line.from_opfunc = function()
   return {
-    nvim.nvim_buf_get_mark(".", "'<")[1],
-    nvim.nvim_buf_get_mark(".", "'>")[1],
+    nvim.nvim_buf_get_mark(".", "[")[1],
+    nvim.nvim_buf_get_mark(".", "]")[1],
+  }
+end
+
+collectors.line.from_visual = function()
+  return {
+    nvim.nvim_buf_get_mark(".", "<")[1],
+    nvim.nvim_buf_get_mark(".", ">")[1],
   }
 end
 

@@ -25,17 +25,22 @@ pointer.projfn = function()
   return buff
 end
 
-
 pointer.sources.from_cursor = {
   project = pointer.projfn,
-  file = pointer.collectors.current_file,
-  line_number = pointer.collectors.current_line,
+  file = pointer.collectors.file.current,
+  line_number = pointer.collectors.line.current,
 }
 
 pointer.sources.from_motion = {
   project = pointer.projfn,
-  file = pointer.collectors.current_file,
-  line_number = pointer.collectors.lines_from_marks,
+  file = pointer.collectors.file.current,
+  line_number = pointer.collectors.line.from_opfunc,
+}
+
+pointer.sources.from_visual = {
+  project = pointer.projfn,
+  file = pointer.collectors.file.current,
+  line_number = pointer.collectors.line.from_visual,
 }
 
 pointer.definition = function(project)
@@ -43,7 +48,6 @@ pointer.definition = function(project)
          utils.get(pointer.data, project[#project-1]) or
          pointer.data
 end
-
 
 pointer.bind = function(source, formatter, sink)
   local sources = utils.get_in(pointer, {"sources", source})
@@ -59,11 +63,9 @@ pointer.bind = function(source, formatter, sink)
   lsink(format(data))
 end
 
-
 pointer.config = function(config)
   pointer.data = utils.safe_merge({}, config)
 end
-
 
 pointer.map = function(mapping)
   local mappings = utils.safe_merge(default_mapping, mapping)
