@@ -24,14 +24,19 @@ end
 
 formatters.url.raw_git = function(url)
   return function(data)
-    local ln = nil
+    local ln
     if type(data.line_number) == "table" then
       ln = "#L" .. data.line_number[1] .. "-L" .. data.line_number[2]
     else
       ln = "#L" .. data.line_number
     end
 
-    return url .. data.project[#data.project-1] .. "/" .. data.project[#data.project] .. "/blob/master/" .. data.file .. ln
+    return (url .. data.project[#data.project-1]
+                .. "/"
+                .. data.project[#data.project]
+                .. "/blob/master/"
+                .. data.file
+                .. ln)
   end
 end
 
@@ -41,7 +46,7 @@ formatters.url.gitlab = formatters.url.raw_git("https://gitlab.com/")
 
 formatters.url.opengrok = function(baseurl)
   return function(data)
-    local ln = nil
+    local ln
     if type(data.line_number) == "table" then
       ln = "#" .. data.line_number[1] .. "-" .. data.line_number[2]
     else
