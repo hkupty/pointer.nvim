@@ -36,7 +36,7 @@ local pointer = require("pointer")
 
 -- This configures github for all projects
 pointer.config{
-  urlfn = pointer.urls.github,
+  url = pointer.urls.github,
 }
 
 -- I'll explain mapping later. leave this to bind to default keybindings
@@ -55,12 +55,12 @@ local pointer = require("pointer")
 
 -- This configures github for all projects
 pointer.config{
-  urlfn = pointer.urls.github,
+  url = pointer.urls.github,
   myteam = {
-    urlfn = pointer.urls.opengrok("https://opengrok.myteam.com/xref/")
+    url = pointer.urls.opengrok("https://opengrok.myteam.com/xref/")
   },
   mycustomproj = {
-    urlfn = pointer.urls.gitlab
+    url = pointer.urls.gitlab
   }
 }
 
@@ -85,8 +85,6 @@ yRp -> As an absolute path (/home/user/code/owner/path/to/project.py)
 
 ## TODO
 
-- [ ] Allow range selection
-- [ ] Polish the code and organize namespaces better
 - [ ] Write tests
 - [ ] Collect git branch data
 - [ ] Allow custom collectors
