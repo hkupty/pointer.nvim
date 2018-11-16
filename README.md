@@ -36,7 +36,7 @@ local pointer = require("pointer")
 
 -- This configures github for all projects
 pointer.config{
-  url = pointer.urls.github,
+  url = pointer.url.github,
 }
 
 -- I'll explain mapping later. leave this to bind to default keybindings
@@ -55,9 +55,9 @@ local pointer = require("pointer")
 
 -- This configures github for all projects
 pointer.config{
-  url = pointer.urls.github,
+  url = pointer.url.github,
   myteam = {
-    url = pointer.urls.opengrok("https://opengrok.myteam.com/xref/")
+    url = pointer.url.opengrok("https://opengrok.myteam.com/xref/")
   },
   mycustomproj = {
     url = pointer.urls.gitlab
