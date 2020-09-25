@@ -1,4 +1,3 @@
-local nvim = vim.api -- luacheck: ignore
 local utils = require("pointer.utils")
 
 local default_mapping = {
@@ -10,35 +9,42 @@ local default_mapping = {
 
 local pointer = {
   collectors = require("pointer.collectors"),
+  extractors = {
+    name = function(path)
+      local last
+      for part in string.gmatch(path, "([^/]+)") do
+        last = part
+      end
+      return last
+    end
+  },
   sinks = require("pointer.sinks"),
   formatters = require("pointer.formatters"),
   sources = {},
-  data = {},
+  data = {
+  },
 }
 
-pointer.projfn = function()
-  local path = nvim.nvim_call_function("getcwd", {})
-  local buff = {}
-  path:gsub("([^/]+)", function(p)
-    table.insert(buff, p)
-  end)
-  return buff
-end
-
 pointer.sources.from_cursor = {
-  project = pointer.projfn,
+  project = pointer.collectors.project.current,
+  gitref = pointer.collectors.gitref.head,
+  remote = pointer.collectors.remote.origin,
   file = pointer.collectors.file.current,
   line_number = pointer.collectors.line.current,
 }
 
 pointer.sources.from_motion = {
-  project = pointer.projfn,
+  project = pointer.collectors.project.current,
+  gitref = pointer.collectors.gitref.head,
+  remote = pointer.collectors.remote.origin,
   file = pointer.collectors.file.current,
   line_number = pointer.collectors.line.from_opfunc,
 }
 
 pointer.sources.from_visual = {
-  project = pointer.projfn,
+  project = pointer.collectors.project.current,
+  gitref = pointer.collectors.gitref.head,
+  remote = pointer.collectors.remote.origin,
   file = pointer.collectors.file.current,
   line_number = pointer.collectors.line.from_visual,
 }
@@ -58,6 +64,10 @@ pointer.bind = function(source, formatter, sink)
 
   local definition = pointer.definition(data.project)
   local format = utils.get(definition, formatter) or utils.get_qualified(pointer, "formatters." .. formatter)
+  if type(format) == "table" then
+    format = format[data.remote]
+  end
+
   local lsink = utils.get_in(pointer, {"sinks", sink})
 
   lsink(format(data))
@@ -70,7 +80,7 @@ end
 pointer.map = function(mapping)
   local mappings = utils.safe_merge(default_mapping, mapping)
   for _, map in pairs(mappings) do
-    nvim.nvim_command("nmap <silent> " .. map[1] .. " <Cmd> lua " .. map[2] .. "<CR>")
+    vim.api.nvim_set_keymap('n', map[1], "lua" .. map[2] .. "<CR>", {silent = true})
   end
 end
 
