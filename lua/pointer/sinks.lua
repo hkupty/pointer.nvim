@@ -1,12 +1,11 @@
-local nvim = vim.api -- luacheck: ignore
 local sinks = {}
 
 sinks.to_clip = function(val)
-  nvim.nvim_call_function("setreg", {"+", val})
+  vim.fn.setreg("+", val)
 end
 
 sinks.to_browser = function(val)
-  nvim.nvim_command("!xdg-open '" .. val .. "'")
+  vim.fn.system{"xdg-open", val}
 end
 
 return sinks

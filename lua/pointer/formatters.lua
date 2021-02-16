@@ -34,7 +34,9 @@ formatters.url.raw_git = function(url)
     return (url .. data.project[#data.project-1]
                 .. "/"
                 .. data.project[#data.project]
-                .. "/blob/master/"
+                .. "/blob/"
+                .. data.gitref
+                .. "/"
                 .. data.file
                 .. ln)
   end
