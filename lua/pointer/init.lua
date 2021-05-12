@@ -1,3 +1,4 @@
+-- luacheck: globals vim
 local utils = require("pointer.utils")
 
 local default_mapping = {
