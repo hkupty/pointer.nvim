@@ -1,3 +1,4 @@
+-- luacheck: globals vim
 local sinks = {}
 
 sinks.to_clip = function(val)

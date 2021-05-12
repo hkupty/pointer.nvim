@@ -1,3 +1,4 @@
+-- luacheck: globals vim
 local utils = require("pointer.utils")
 
 local default_mapping = {
@@ -80,7 +81,8 @@ end
 pointer.map = function(mapping)
   local mappings = utils.safe_merge(default_mapping, mapping)
   for _, map in pairs(mappings) do
-    vim.api.nvim_set_keymap('n', map[1], "lua" .. map[2] .. "<CR>", {silent = true})
+    -- TODO add visual maps as well
+    vim.api.nvim_set_keymap('n', map[1], "<cmd>lua " .. map[2] .. "<CR>", {silent = true})
   end
 end
 
