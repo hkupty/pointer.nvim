@@ -64,7 +64,7 @@ pointer.bind = function(source, formatter, sink)
   end
 
   local definition = pointer.definition(data.project)
-  local format = utils.get(definition, formatter) or utils.get_qualified(pointer, "formatters." .. formatter)
+  local format = utils.get(definition, formatter) or utils.get_in(pointer, {"formatters",formatter})
   if type(format) == "table" then
     format = format[data.remote]
   end
