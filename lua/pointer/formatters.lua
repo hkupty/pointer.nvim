@@ -9,12 +9,12 @@ local relative_path = function(data)
 end
 
 formatters.path.root_path = function(data)
-  return "/" .. data.file .. " +" .. data.number
+  return "/" .. data.file .. " +" .. data.line_number
 end
 
 formatters.path.project_path = function(data)
 
-  return relative_path(data) .. " +" .. data.number
+  return relative_path(data) .. " +" .. data.line_number
 end
 
 formatters.url.raw_git = function(url)
