@@ -18,7 +18,7 @@ end
 
 pointer.bind = function(opts)
   local source = opts.source or pointer.data.source or source.from_cursor
-  local sink = opts.sink or pointer.data.sink or sinks.debug
+  local sink = opts.sink or pointer.data.sink or sinks.to_clip
   local formatter = opts.formatter or pointer.data.formatter or formatters.url
 
   return function()
