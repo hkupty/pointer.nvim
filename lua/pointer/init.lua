@@ -1,53 +1,12 @@
 -- luacheck: globals vim
 local utils = require("pointer.utils")
+local sinks = require("pointer.sinks")
+local formatters = require("pointer.formatters")
+local sources = require("pointer.sources")
 
-local default_mapping = {
-  url = {"yu", [[require("pointer").bind("from_cursor", "url", "to_clip")]]},
-  rel = {"yrp", [[require("pointer").bind("from_cursor", "path.relative_path", "to_clip")]]},
-  proj = {"ypp", [[require("pointer").bind("from_cursor", "path.project_path", "to_clip")]]},
-  root = {"yRp", [[require("pointer").bind("from_cursor", "path.root_path", "to_clip")]]},
-}
 
 local pointer = {
-  collectors = require("pointer.collectors"),
-  extractors = {
-    name = function(path)
-      local last
-      for part in string.gmatch(path, "([^/]+)") do
-        last = part
-      end
-      return last
-    end
-  },
-  sinks = require("pointer.sinks"),
-  formatters = require("pointer.formatters"),
-  sources = {},
-  data = {
-  },
-}
-
-pointer.sources.from_cursor = {
-  project = pointer.collectors.project.current,
-  gitref = pointer.collectors.gitref.head,
-  remote = pointer.collectors.remote.origin,
-  file = pointer.collectors.file.current,
-  line_number = pointer.collectors.line.current,
-}
-
-pointer.sources.from_motion = {
-  project = pointer.collectors.project.current,
-  gitref = pointer.collectors.gitref.head,
-  remote = pointer.collectors.remote.origin,
-  file = pointer.collectors.file.current,
-  line_number = pointer.collectors.line.from_opfunc,
-}
-
-pointer.sources.from_visual = {
-  project = pointer.collectors.project.current,
-  gitref = pointer.collectors.gitref.head,
-  remote = pointer.collectors.remote.origin,
-  file = pointer.collectors.file.current,
-  line_number = pointer.collectors.line.from_visual,
+  data = {}
 }
 
 pointer.definition = function(project)
@@ -56,34 +15,47 @@ pointer.definition = function(project)
          pointer.data
 end
 
-pointer.bind = function(source, formatter, sink)
-  local sources = utils.get_in(pointer, {"sources", source})
+
+pointer.bind = function(opts)
+  local source = opts.source or pointer.data.source or source.from_cursor
+  local sink = opts.sink or pointer.data.sink or sinks.debug
+  local formatter = opts.formatter or pointer.data.formatter or formatters.url
+
+  return function()
+    pointer.run(source, formatter, sink)
+  end
+end
+
+pointer.run = function(source, formatter, sink)
   local data = {}
-  for key, srcfn in pairs(sources) do
+  for key, srcfn in pairs(source) do
     data[key] = srcfn()
   end
 
-  local definition = pointer.definition(data.project)
-  local format = utils.get(definition, formatter) or utils.get_in(pointer, {"formatters",formatter})
-  if type(format) == "table" then
-    format = format[data.remote]
+  if type(formatter) == "table" then
+    formatter = formatter[data.remote]
   end
 
-  local lsink = utils.get_in(pointer, {"sinks", sink})
-
-  lsink(format(data))
+  sink(formatter(data))
 end
 
 pointer.config = function(config)
   pointer.data = utils.safe_merge({}, config)
 end
 
+local default_mapping = {
+  url = {"yu", formatters.url},
+  proj = {"ypp", formatters.path.project_path},
+  root = {"yRp", formatters.path.root_path},
+}
+
 pointer.map = function(mapping)
-  local mappings = utils.safe_merge(default_mapping, mapping)
+  local mappings = utils.safe_merge(default_mapping, mapping or {})
   for _, map in pairs(mappings) do
-    -- TODO add visual maps as well
-    vim.api.nvim_set_keymap('n', map[1], "<cmd>lua " .. map[2] .. "<CR>", {silent = true})
+    vim.keymap.set({"n"}, map[1], pointer.bind({formatter = map[2], source = sources.from_cursor}), { silent = true })
+    vim.keymap.set({"v"}, map[1], pointer.bind({formatter = map[2], source = sources.from_visual}), { silent = true })
   end
 end
+
 
 return pointer

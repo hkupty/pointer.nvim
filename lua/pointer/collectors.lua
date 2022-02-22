@@ -27,7 +27,7 @@ end
 collectors.remote.origin = function() return collectors.remote.named("origin") end
 
 collectors.file.current = function()
-  return vim.api.nvim_call_function("expand", {"%"})
+  return vim.api.nvim_buf_get_name(0)
 end
 
 collectors.line.current = function()
@@ -36,15 +36,15 @@ end
 
 collectors.line.from_opfunc = function()
   return {
-    vim.api.nvim_buf_get_mark(".", "[")[1],
-    vim.api.nvim_buf_get_mark(".", "]")[1],
+    vim.api.nvim_buf_get_mark(0, "[")[1],
+    vim.api.nvim_buf_get_mark(0, "]")[1],
   }
 end
 
 collectors.line.from_visual = function()
   return {
-    vim.api.nvim_buf_get_mark(".", "<")[1],
-    vim.api.nvim_buf_get_mark(".", ">")[1],
+    vim.fn.getpos('v')[2],
+    vim.fn.getpos('.')[2],
   }
 end
 

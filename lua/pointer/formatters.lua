@@ -4,22 +4,17 @@ local formatters = {
   url = {}
 }
 
-formatters.path.root_path = function(data)
-  local path = data.project
-  table.insert(path, data.file)
+local relative_path = function(data)
+  return vim.split(data.file, table.concat(data.project, "/"), true)[2]
+end
 
-  return "/" .. table.concat(path, "/") .. " +" .. data.number
+formatters.path.root_path = function(data)
+  return "/" .. data.file .. " +" .. data.number
 end
 
 formatters.path.project_path = function(data)
-  local path = {data.project[#data.project]}
-  table.insert(path, data.file)
 
-  return table.concat(path, "/") .. " +" .. data.number
-end
-
-formatters.path.relative_path = function(data)
-  return data.file .. " +" .. data.number
+  return relative_path(data) .. " +" .. data.number
 end
 
 formatters.url.raw_git = function(url)
@@ -36,8 +31,7 @@ formatters.url.raw_git = function(url)
                 .. data.project[#data.project]
                 .. "/blob/"
                 .. data.gitref
-                .. "/"
-                .. data.file
+                .. relative_path(data)
                 .. ln)
   end
 end
@@ -60,5 +54,3 @@ formatters.url.opengrok = function(baseurl)
 end
 
 return formatters
-
-

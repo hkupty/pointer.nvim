@@ -9,4 +9,8 @@ sinks.to_browser = function(val)
   vim.fn.system{"xdg-open", val}
 end
 
+sinks.debug = function(val)
+  print(vim.inspect(val))
+end
+
 return sinks
