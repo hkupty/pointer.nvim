@@ -5,7 +5,8 @@ local formatters = {
 }
 
 local relative_path = function(data)
-  return vim.split(data.file, table.concat(data.project, "/"), true)[2]
+  local path = vim.split(data.file, data.project, { plain = true, trimempty = true })
+  return path[#path]
 end
 
 formatters.path.root_path = function(data)

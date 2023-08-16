@@ -9,8 +9,8 @@ local collectors = {
 }
 
 collectors.project.current = function()
-  -- Assumption: project folders are saved as owner/project.
-  return utils.last_n(utils.split_path(vim.fn.systemlist("git rev-parse --show-toplevel")[1]), 2)
+  return vim.fn.systemlist("git rev-parse --show-toplevel")[1]
+end
 end
 
 collectors.gitref.head = function()
