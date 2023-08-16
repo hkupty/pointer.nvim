@@ -11,13 +11,13 @@ local pointer = {
 
 pointer.definition = function(project)
   return utils.get(pointer.data, project[#project]) or
-         utils.get(pointer.data, project[#project-1]) or
-         pointer.data
+      utils.get(pointer.data, project[#project - 1]) or
+      pointer.data
 end
 
 
 pointer.bind = function(opts)
-  local source = opts.source or pointer.data.source or source.from_cursor
+  local source = opts.source or pointer.data.source or sources.from_cursor
   local sink = opts.sink or pointer.data.sink or sinks.to_clip
   local formatter = opts.formatter or pointer.data.formatter or formatters.url
 
@@ -44,16 +44,27 @@ pointer.config = function(config)
 end
 
 local default_mapping = {
-  url = {"yu", formatters.url},
-  proj = {"ypp", formatters.path.project_path},
-  root = {"yRp", formatters.path.root_path},
+  url = { "yu", formatters.url },
+  proj = { "ypp", formatters.path.project_path },
+  root = { "yRp", formatters.path.root_path },
 }
 
-pointer.map = function(mapping)
+pointer.setup = function(mapping)
   local mappings = utils.safe_merge(default_mapping, mapping or {})
   for _, map in pairs(mappings) do
-    vim.keymap.set({"n"}, map[1], pointer.bind({formatter = map[2], source = sources.from_cursor}), { silent = true })
-    vim.keymap.set({"v"}, map[1], pointer.bind({formatter = map[2], source = sources.from_visual}), { silent = true })
+    vim.keymap.set(
+      { "n" },
+      map[1],
+      pointer.bind { formatter = map[2], source = sources.from_cursor },
+      { silent = true }
+    )
+
+    vim.keymap.set(
+      { "v" },
+      map[1],
+      pointer.bind { formatter = map[2], source = sources.from_visual },
+      { silent = true }
+    )
   end
 end
 
