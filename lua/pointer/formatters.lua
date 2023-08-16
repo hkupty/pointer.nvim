@@ -1,4 +1,4 @@
-local nvim = vim.api -- luacheck: ignore
+-- luacheck: globals vim
 local formatters = {
   path = {},
   url = {}
@@ -14,7 +14,6 @@ formatters.path.root_path = function(data)
 end
 
 formatters.path.project_path = function(data)
-
   return relative_path(data) .. " +" .. data.line_number
 end
 
@@ -27,13 +26,12 @@ formatters.url.raw_git = function(url)
       ln = "#L" .. data.line_number
     end
 
-    return (url .. data.project[#data.project-1]
-                .. "/"
-                .. data.project[#data.project]
-                .. "/blob/"
-                .. data.gitref
-                .. relative_path(data)
-                .. ln)
+    return (url
+      .. data.remote_project
+      .. "/blob/"
+      .. data.gitref
+      .. relative_path(data)
+      .. ln)
   end
 end
 

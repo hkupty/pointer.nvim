@@ -11,17 +11,23 @@ local collectors = {
 collectors.project.current = function()
   return vim.fn.systemlist("git rev-parse --show-toplevel")[1]
 end
+
+collectors.project.remote = function()
+  local url = vim.fn.systemlist { "git", "remote", "get-url", "origin" }[1]
+  local remote
+  local _ = string.gsub(url, "@[^:]+:(.+).git", function(s) remote = s end, 1)
+  return remote
 end
 
 collectors.gitref.head = function()
-  return vim.fn.systemlist{"git", "rev-parse", "--abbrev-ref", "HEAD"}[1]
+  return vim.fn.systemlist { "git", "rev-parse", "--abbrev-ref", "HEAD" }[1]
 end
 
 collectors.remote.named = function(name)
-  local url = vim.fn.systemlist{"git", "remote", "get-url", name}[1]
+  local url = vim.fn.systemlist { "git", "remote", "get-url", name }[1]
   local remote
-  string.gsub(url, "@([^:]+):", function(s) remote = s end)
-  return string.match(remote, "([^.]+).(.*)")
+  local _ = string.gsub(url, "@([^:]+):", function(s) remote = s end, 1)
+  return string.match(remote, "([^.]+).*", 1)
 end
 
 collectors.remote.origin = function() return collectors.remote.named("origin") end
