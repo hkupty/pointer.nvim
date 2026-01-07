@@ -17,7 +17,8 @@ pointer.locate = function()
 	local base = vim.fn.expand("%:p:h")
 	local root = vim.trim(vim.system({ "git", "rev-parse", "--show-toplevel" }, {
 		cwd = base,
-	}))
+	})
+		:wait().stdout)
 
 	if vim.startswith(file, root) ~= true then
 		vim.notify("File does not belong to git repo, somehow", vim.log.levels.ERROR)
