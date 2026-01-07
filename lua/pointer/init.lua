@@ -7,7 +7,9 @@ pointer.config = {}
 pointer.setup = function(opts) end
 
 pointer.locate = function()
-	local mode, blocking = vim.api.nvim_get_mode()
+	local result = vim.api.nvim_get_mode()
+	local mode = result.mode
+	local blocking = result.blocking
 
 	if blocking then
 		return
