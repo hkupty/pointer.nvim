@@ -4,7 +4,9 @@ local pointer = {}
 
 pointer.config = {}
 
-pointer.setup = function(opts) end
+pointer.setup = function(opts)
+	vim.keymap.set({ "n", "v" }, "yu", pointer.locate, {})
+end
 
 pointer.locate = function()
 	local result = vim.api.nvim_get_mode()
