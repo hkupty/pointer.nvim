@@ -15,7 +15,7 @@ pointer.locate = function()
 
 	local file = vim.fn.expand("%:p")
 	local base = vim.fn.expand("%:p:h")
-	local root = vim.trim(vim.system("git rev-parse --show-toplevel", {
+	local root = vim.trim(vim.system({ "git", "rev-parse", "--show-toplevel" }, {
 		cwd = base,
 	}))
 
