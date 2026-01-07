@@ -19,7 +19,7 @@ pointer.locate = function()
 		cwd = base,
 	}))
 
-	if ~vim.startswith(file, root) then
+	if vim.startswith(file, root) ~= true then
 		vim.notify("File does not belong to git repo, somehow", vim.log.levels.ERROR)
 		return
 	end
