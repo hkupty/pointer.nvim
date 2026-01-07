@@ -38,6 +38,10 @@ pointer.locate = function()
 		return { path, cursor[1] }
 	end
 
+	local pos = vim.fn.getregionpos(vim.fn.getpos("v"), vim.fn.getpos("."), { type = "v" })
+
+	print(vim.inspect(pos))
+
 	-- TODO: multi-line locate
 
 	-- HACK: Fallback case, no line found
