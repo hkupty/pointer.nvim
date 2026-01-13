@@ -62,7 +62,7 @@ pointer.locate = function()
 
 	local path = file:sub(#root + 2)
 
-	if vim.startswith(mode, "n") then
+	if mode == "n" then
 		local cursor = vim.api.nvim_win_get_cursor(0)
 
 		-- NOTE: single-line locate
