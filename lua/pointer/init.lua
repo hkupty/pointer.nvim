@@ -7,6 +7,8 @@ pointer.config = {
 }
 
 pointer.setup = function(opts)
+	-- TODO: Make it an operator so this can be sent to a register instead
+	-- NOTE: Possibly take register from v:register
 	vim.keymap.set({ "n", "v" }, "yu", function()
 		vim.fn.setreg("", pointer.format())
 	end, {})
@@ -23,7 +25,7 @@ pointer.calculate_target = function(root)
 		cwd = root,
 	})
 		:wait().stdout
-	local target = vim.vim.split(remotes, "%.?git[^h]", { trimempty = true })[1]
+	local target = vim.split(remotes, "%.?git[^h]", { trimempty = true })[1]
 	target = target:gsub(":", "/")
 	pointer.config._cache[root] = target
 	return target
