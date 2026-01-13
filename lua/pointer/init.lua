@@ -64,15 +64,6 @@ pointer.locate = function()
 
 	local path = file:sub(#root + 2)
 
-	print(vim.inspect(mode))
-
-	if mode == "n" then
-		local cursor = vim.api.nvim_win_get_cursor(0)
-
-		-- NOTE: single-line locate
-		return { target, branch, path, cursor[1] }
-	end
-
 	local pos = vim.fn.getregionpos(vim.fn.getpos("v"), vim.fn.getpos("."), { type = "v" })
 	local first = pos[1][1][2]
 	local last = pos[#pos][2][2]
@@ -92,7 +83,7 @@ pointer.format = function()
 		join = "#"
 		url = vim.iter({ "https:/", data[1], "tree", data[2], data[3] }):join("/")
 		suffix = "L" .. data[4]
-		if data[5] ~= nil then
+		if data[5] ~= nil and data[5] ~= data[4] then
 			suffix = suffix .. "-L" .. data[5]
 		end
 
