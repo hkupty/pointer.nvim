@@ -39,8 +39,8 @@ pointer.locate = function()
 	end
 
 	local pos = vim.fn.getregionpos(vim.fn.getpos("v"), vim.fn.getpos("."), { type = "v" })
-	local first = pos[1][1]
-	local last = pos[#pos][2]
+	local first = pos[1][1][2]
+	local last = pos[#pos][2][2]
 
 	-- TODO: multi-line locate
 
