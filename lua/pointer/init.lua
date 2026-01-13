@@ -39,13 +39,13 @@ pointer.locate = function()
 	end
 
 	local pos = vim.fn.getregionpos(vim.fn.getpos("v"), vim.fn.getpos("."), { type = "v" })
-
-	print(vim.inspect(pos))
+	local first = pos[1][1]
+	local last = pos[#pos][2]
 
 	-- TODO: multi-line locate
 
 	-- HACK: Fallback case, no line found
-	return { path }
+	return { path, first, last }
 end
 
 return pointer
