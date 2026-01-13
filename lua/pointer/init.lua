@@ -71,7 +71,7 @@ pointer.locate = function()
 
 	local pos = vim.fn.getregionpos(vim.fn.getpos("v"), vim.fn.getpos("."), { type = "v" })
 	local first = pos[1][1][2]
-	local last = pos[#pos][2]
+	local last = pos[#pos][2][2]
 
 	-- TODO: multi-line locate
 
@@ -84,7 +84,6 @@ pointer.format = function()
 
 	local url
 	local suffix
-
 	-- NOTE: Only githumb remote is supported
 	if vim.startswith(data[1], "github.com") then
 		join = "#"
