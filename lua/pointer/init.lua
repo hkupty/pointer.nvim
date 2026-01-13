@@ -33,9 +33,8 @@ pointer.calculate_target = function(root)
 	return target
 end
 
-pointer.locate = function()
+pointer.locate = function(type)
 	local result = vim.api.nvim_get_mode()
-	local mode = result.mode
 	local blocking = result.blocking
 
 	if blocking then
@@ -64,7 +63,13 @@ pointer.locate = function()
 
 	local path = file:sub(#root + 2)
 
-	local pos = vim.fn.getregionpos(vim.fn.getpos("v"), vim.fn.getpos("."), { type = "v" })
+	local pos
+	if type == nil then
+		pos = vim.fn.getregionpos(vim.fn.getpos("v"), vim.fn.getpos("."), { type = "v" })
+	else
+		pos = vim.fn.getregionpos(vim.api.nvim_buf_get_mark(0, "["), vim.api.nvim_buf_get_mark(0, "]"), { type = "v" })
+	end
+
 	local first = pos[1][1][2]
 	local last = pos[#pos][2][2]
 
@@ -73,9 +78,7 @@ pointer.locate = function()
 	return { target, branch, path, first, last }
 end
 
-pointer.format = function()
-	local data = pointer.locate()
-
+pointer.format = function(data)
 	local url
 	local suffix
 	-- NOTE: Only githumb remote is supported
@@ -91,8 +94,9 @@ pointer.format = function()
 	end
 end
 
-pointer.setreg = function()
-	vim.fn.setreg(vim.v.register, pointer.format())
+pointer.setreg = function(type)
+	local data = pointer.locate(type)
+	vim.fn.setreg(vim.v.register, pointer.format(data))
 end
 
 return pointer
