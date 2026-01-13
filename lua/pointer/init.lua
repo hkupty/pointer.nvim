@@ -9,7 +9,8 @@ pointer.config = {
 pointer.setup = function(opts)
 	pointer.config._cache = vim.tbl_extend("keep", {}, opts, pointer.config._cache)
 
-	vim.keymap.set({ "n", "v" }, "yU", pointer.setreg, {})
+	vim.keymap.set({ "n" }, "yU", pointer.setreg, {})
+	vim.keymap.set({ "v" }, "yu", pointer.setreg, {})
 	vim.keymap.set({ "n" }, "yu", function()
 		vim.go.operatorfunc = "v:lua.require'pointer'.setreg"
 		return "g@"
