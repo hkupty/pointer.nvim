@@ -20,73 +20,18 @@ build an url so you can get the current line as a shareable url:
 
 Will yield `https://github.com/owner/project/master/blob/path/to/file.py#L10`
 
-Pointer tries to match data from its configuration, the file and its path:
-`/home/user/code/owner/project/path/to/file`
+Pointer will figure out based on remote and branch name the correct URL and format it accordingly.
 
-It will use cwd to determine project root, so: `tcd /home/user/code/owner/project`
-By convention, pointer.nvim assumes that projects follow the `owener/project` directory structure.
-You can override that behavior with custom functions.
+## Key maps
 
-## How to set up
-
-Create a `pointer.lua` file for configuring your pointer in your config dir
-
-```lua
-local pointer = require("pointer")
-
--- This configures github for all projects
-pointer.config{
-  url = pointer.url.github,
-}
-
--- I'll explain mapping later. leave this to bind to default keybindings
-pointer.map{}
 ```
-
-and in your `init.vim`:
-```vim
-luafile $HOME/.config/nvim/pointer.lua
-```
-
-## A slightly more complex configuration
-
-```lua
-local pointer = require("pointer")
-
--- This configures github for all projects
-pointer.config{
-  url = pointer.url.github,
-  myteam = {
-    url = pointer.url.opengrok("https://opengrok.myteam.com/xref/")
-  },
-  mycustomproj = {
-    url = pointer.urls.gitlab
-  }
-}
-
--- I'll explain mapping later. leave this to bind to default keybindings
-pointer.map{}
-```
-
-it will try to match first based on the project, than on the owner, then it'll use the general rule:
-`/home/user/code/myteam/mycustomproj/... -> gitlab`
-`/home/user/code/myteam/second/... -> opengrok`
-`/home/user/code/vigemus/pointer.nvim/... -> github`
-
-## Mappings
-
-If you use default mappings, it'll map:
-```
-yu -> As url
-ypp -> As a relative path from project owner (project/path/to/file.py)
-yrp -> As a relative path from your project (path/to/file.py)
-yRp -> As an absolute path (/home/user/code/owner/path/to/project.py)
+yU           - will get the link to the current line
+yu (visual)  - will get the link for the current selection
+yu(operator) - will get the link for the lines within the operator boundaries
 ```
 
 ## TODO
 
-- [ ] Write tests
-- [ ] Collect git branch data
-- [ ] Allow custom collectors
-- [ ] Better user customization
-- [ ] Allow references to Pull-Request/Merge-Request
+- [ ] Other remote URL formats
+- [ ] Other version control systems
+- [ ] Other outputs that are not remote URLs (i.e. local files relative to repository root)

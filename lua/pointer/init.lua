@@ -1,72 +1,104 @@
 -- luacheck: globals vim
-local utils = require("pointer.utils")
-local sinks = require("pointer.sinks")
-local formatters = require("pointer.formatters")
-local sources = require("pointer.sources")
 
+local pointer = {}
 
-local pointer = {
-  data = {}
+pointer.config = {
+	_cache = {},
 }
 
-pointer.definition = function(project)
-  return utils.get(pointer.data, project[#project]) or
-      utils.get(pointer.data, project[#project - 1]) or
-      pointer.data
+pointer.setup = function(opts)
+	pointer.config._cache = vim.tbl_extend("keep", {}, opts, pointer.config._cache)
+
+	vim.keymap.set({ "n" }, "yU", pointer.setreg, {})
+	vim.keymap.set({ "v" }, "yu", pointer.setreg, {})
+	vim.keymap.set({ "n" }, "yu", function()
+		vim.go.operatorfunc = "v:lua.require'pointer'.setreg"
+		return "g@"
+	end, { expr = true })
 end
 
-
-pointer.bind = function(opts)
-  local source = opts.source or pointer.data.source or sources.from_cursor
-  local sink = opts.sink or pointer.data.sink or sinks.to_clip
-  local formatter = opts.formatter or pointer.data.formatter or formatters.url
-
-  return function()
-    pointer.run(source, formatter, sink)
-  end
+pointer.calculate_target = function(root)
+	local remotes = vim.system({
+		"git",
+		"remote",
+		"get-url",
+		-- NOTE: Assumption that upstream url is named origin
+		"origin",
+	}, {
+		cwd = root,
+	})
+		:wait().stdout
+	local target = vim.split(remotes, "%.?git[^h]", { trimempty = true })[1]
+	target = target:gsub(":", "/")
+	pointer.config._cache[root] = target
+	return target
 end
 
-pointer.run = function(source, formatter, sink)
-  local data = {}
-  for key, srcfn in pairs(source) do
-    data[key] = srcfn()
-  end
+pointer.locate = function(type)
+	local result = vim.api.nvim_get_mode()
+	local blocking = result.blocking
 
-  if type(formatter) == "table" then
-    formatter = formatter[data.remote]
-  end
+	if blocking then
+		return
+	end
 
-  sink(formatter(data))
+	local file = vim.fn.expand("%:p")
+	local base = vim.fn.expand("%:p:h")
+	-- NOTE: Only supports git for now
+	local root = vim.trim(vim.system({ "git", "rev-parse", "--show-toplevel" }, {
+		cwd = base,
+	})
+		:wait().stdout)
+
+	local target = pointer.config._cache[root]
+	if target == nil then
+		target = pointer.calculate_target(root)
+	end
+
+	local branch = vim.trim(vim.system({ "git", "branch", "--show-current" }, { cwd = root }):wait().stdout)
+
+	if vim.startswith(file, root) ~= true then
+		vim.notify("File does not belong to git repo, somehow", vim.log.levels.ERROR)
+		return
+	end
+
+	local path = file:sub(#root + 2)
+
+	local first
+	local last
+	if type == nil then
+		local pos = vim.fn.getregionpos(vim.fn.getpos("v"), vim.fn.getpos("."), { type = "v" })
+		first = pos[1][1][2]
+		last = pos[#pos][2][2]
+	else
+		first = vim.api.nvim_buf_get_mark(0, "[")[1]
+		last = vim.api.nvim_buf_get_mark(0, "]")[1]
+	end
+
+	vim.api.nvim_input("<ESC>")
+
+	return { target, branch, path, first, last }
 end
 
-pointer.config = function(config)
-  pointer.data = utils.safe_merge({}, config)
+pointer.format = function(data)
+	local url
+	local suffix
+	-- NOTE: Only githumb remote is supported
+	if vim.startswith(data[1], "github.com") then
+		join = "#"
+		url = vim.iter({ "https:/", data[1], "tree", data[2], data[3] }):join("/")
+		suffix = "L" .. data[4]
+		if data[5] ~= nil and data[5] ~= data[4] then
+			suffix = suffix .. "-L" .. data[5]
+		end
+
+		return url .. "#" .. suffix
+	end
 end
 
-local default_mapping = {
-  url = { "yu", formatters.url },
-  proj = { "ypp", formatters.path.project_path },
-  root = { "yRp", formatters.path.root_path },
-}
-
-pointer.setup = function(mapping)
-  local mappings = utils.safe_merge(default_mapping, mapping or {})
-  for _, map in pairs(mappings) do
-    vim.keymap.set(
-      { "n" },
-      map[1],
-      pointer.bind { formatter = map[2], source = sources.from_cursor },
-      { silent = true }
-    )
-
-    vim.keymap.set(
-      { "v" },
-      map[1],
-      pointer.bind { formatter = map[2], source = sources.from_visual },
-      { silent = true }
-    )
-  end
+pointer.setreg = function(type)
+	local data = pointer.locate(type)
+	vim.fn.setreg(vim.v.register, pointer.format(data))
 end
-
 
 return pointer
