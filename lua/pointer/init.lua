@@ -64,6 +64,8 @@ pointer.locate = function()
 
 	local path = file:sub(#root + 2)
 
+	print(vim.inspect(mode))
+
 	if mode == "n" then
 		local cursor = vim.api.nvim_win_get_cursor(0)
 
