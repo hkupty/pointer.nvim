@@ -7,8 +7,8 @@ pointer.config = {
 }
 
 pointer.setup = function(opts)
-	-- TODO: Make it an operator so this can be sent to a register instead
-	-- NOTE: Possibly take register from v:register
+	pointer.config._cache = vim.tbl_extend("keep", {}, opts, pointer.config._cache)
+
 	vim.keymap.set({ "n", "v" }, "yu", function()
 		vim.fn.setreg(vim.v.register, pointer.format())
 	end, {})
