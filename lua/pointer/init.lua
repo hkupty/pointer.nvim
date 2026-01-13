@@ -10,7 +10,7 @@ pointer.setup = function(opts)
 	-- TODO: Make it an operator so this can be sent to a register instead
 	-- NOTE: Possibly take register from v:register
 	vim.keymap.set({ "n", "v" }, "yu", function()
-		vim.fn.setreg("", pointer.format())
+		vim.fn.setreg(vim.v.register, pointer.format())
 	end, {})
 end
 
