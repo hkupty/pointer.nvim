@@ -73,9 +73,8 @@ pointer.locate = function()
 	local first = pos[1][1][2]
 	local last = pos[#pos][2][2]
 
-	-- TODO: multi-line locate
+	vim.api.nvim_input("<ESC>")
 
-	-- HACK: Fallback case, no line found
 	return { target, branch, path, first, last }
 end
 
