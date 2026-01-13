@@ -63,15 +63,16 @@ pointer.locate = function(type)
 
 	local path = file:sub(#root + 2)
 
-	local pos
+	local first
+	local last
 	if type == nil then
-		pos = vim.fn.getregionpos(vim.fn.getpos("v"), vim.fn.getpos("."), { type = "v" })
+		local pos = vim.fn.getregionpos(vim.fn.getpos("v"), vim.fn.getpos("."), { type = "v" })
+		first = pos[1][1][2]
+		last = pos[#pos][2][2]
 	else
-		pos = vim.fn.getregionpos(vim.api.nvim_buf_get_mark(0, "["), vim.api.nvim_buf_get_mark(0, "]"), { type = "v" })
+		first = vim.api.nvim_buf_get_mark(0, "[")[1]
+		last = vim.api.nvim_buf_get_mark(0, "]")[1]
 	end
-
-	local first = pos[1][1][2]
-	local last = pos[#pos][2][2]
 
 	vim.api.nvim_input("<ESC>")
 
