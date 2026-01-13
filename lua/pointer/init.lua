@@ -9,8 +9,10 @@ pointer.config = {
 pointer.setup = function(opts)
 	pointer.config._cache = vim.tbl_extend("keep", {}, opts, pointer.config._cache)
 
-	vim.keymap.set({ "n", "v" }, "yu", function()
-		vim.fn.setreg(vim.v.register, pointer.format())
+	vim.keymap.set({ "n", "v" }, "yU", pointer.setreg, {})
+	vim.keymap.set({ "n" }, "yu", function()
+		vim.v.operatorfunc = "v:lua.require'pointer'setreg"
+		return "g@"
 	end, {})
 end
 
@@ -94,6 +96,10 @@ pointer.format = function()
 
 		return url .. "#" .. suffix
 	end
+end
+
+pointer.setreg = function()
+	vim.fn.setreg(vim.v.register, pointer.format())
 end
 
 return pointer
