@@ -11,9 +11,9 @@ pointer.setup = function(opts)
 
 	vim.keymap.set({ "n", "v" }, "yU", pointer.setreg, {})
 	vim.keymap.set({ "n" }, "yu", function()
-		vim.v.operatorfunc = "v:lua.require'pointer'setreg"
+		vim.go.operatorfunc = "v:lua.require'pointer'.setreg"
 		return "g@"
-	end, {})
+	end, { expr = true })
 end
 
 pointer.calculate_target = function(root)
